@@ -1,8 +1,10 @@
-// Orquestrador Principal do Radar Alpha
+// Orquestrador Principal do Radar Alpha Multiativos
 class App {
   constructor() {
     this.cryptoRadar = new CryptoRadar();
     this.fiiRadar = new FiiRadar();
+    this.stocksRadar = new StocksRadar();
+    this.fixedIncome = new FixedIncomeRadar();
     this.simulator = new PortfolioSimulator();
     this.activeTradeModal = null;
   }
@@ -15,9 +17,11 @@ class App {
     // Inicializar os radares
     await this.cryptoRadar.init();
     await this.fiiRadar.init();
+    this.stocksRadar.init();
+    this.fixedIncome.init();
     this.simulator.updateUI();
 
-    // Loop periódico para manter carteira sincronizada com variações de preços
+    // Loop periódico para manter carteira sincronizada
     setInterval(() => {
       this.simulator.updateUI();
     }, 4000);
@@ -46,7 +50,6 @@ class App {
           activePane.classList.add('active');
         }
 
-        // Se for a aba da carteira, forçar atualização dos cálculos
         if (targetTab === 'tab-simulator') {
           this.simulator.updateUI();
         }
@@ -62,6 +65,7 @@ class App {
     }
     this.cryptoRadar.setSignalFilter(filter);
     this.fiiRadar.setSignalFilter(filter);
+    this.stocksRadar.setSignalFilter(filter);
   }
 
   setupGlobalSearch() {
@@ -73,6 +77,11 @@ class App {
     const fiiSearch = document.getElementById('fii-search-input');
     fiiSearch?.addEventListener('input', (e) => {
       this.fiiRadar.setSearch(e.target.value);
+    });
+
+    const stockSearch = document.getElementById('stock-search-input');
+    stockSearch?.addEventListener('input', (e) => {
+      this.stocksRadar.setSearch(e.target.value);
     });
   }
 
@@ -120,11 +129,15 @@ class App {
     if (type === 'crypto') {
       const priceBrl = currentPrice * this.simulator.usdToBrl;
       priceText = `Preço atual: $${this.cryptoRadar.formatPrice(currentPrice)} (aprox. R$ ${priceBrl.toFixed(2)})`;
-      amountInput.placeholder = 'Ex: 500 (em R$)';
-      amountInput.value = '500';
+      amountInput.placeholder = 'Ex: 1000 (em R$)';
+      amountInput.value = '1000';
+    } else if (type === 'fixed_income') {
+      priceText = `Aplicação em Renda Fixa: ${symbol}`;
+      amountInput.placeholder = 'Ex: 5000 (em R$)';
+      amountInput.value = '5000';
     } else {
-      priceText = `Cotação atual: R$ ${currentPrice.toFixed(2)} por cota`;
-      amountInput.placeholder = `Ex: ${(currentPrice * 10).toFixed(2)} (para 10 cotas)`;
+      priceText = `Cotação atual: R$ ${currentPrice.toFixed(2)} por unidade`;
+      amountInput.placeholder = `Ex: ${(currentPrice * 10).toFixed(2)} (para 10 cotas/ações)`;
       amountInput.value = (currentPrice * 10).toFixed(2);
     }
 
@@ -144,7 +157,8 @@ class App {
     const pos = this.simulator.state.positions[symbol];
     if (!pos) return;
 
-    const qtyToSellStr = prompt(`Quantas unidades de ${symbol} deseja vender? (Você possui: ${pos.type === 'crypto' ? pos.qty.toFixed(4) : pos.qty})`, pos.type === 'crypto' ? pos.qty.toFixed(4) : pos.qty);
+    const qtyPrompt = pos.type === 'crypto' ? pos.qty.toFixed(4) : (pos.type === 'fixed_income' ? pos.qty.toFixed(2) : pos.qty);
+    const qtyToSellStr = prompt(`Quantas unidades/valor de ${symbol} deseja vender? (Você possui: ${qtyPrompt})`, qtyPrompt);
     if (!qtyToSellStr) return;
 
     const qtyToSell = parseFloat(qtyToSellStr);

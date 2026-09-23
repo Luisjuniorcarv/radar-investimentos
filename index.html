@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radar Alpha • Garimpo de Criptomoedas e FIIs em Tempo Real</title>
-  <meta name="description" content="Plataforma de inteligência financeira pessoal para monitorar o mercado cripto em tempo real e fundos imobiliários da B3, detectando oportunidades de investimento e simulando aportes.">
+  <title>Radar Alpha • Garimpo Multiativos (Cripto, FIIs, Fiagros, Ações B3, BDRs e Renda Fixa)</title>
+  <meta name="description" content="Plataforma de inteligência financeira pessoal para monitorar o mercado cripto em tempo real, fundos imobiliários, agronegócio, ações da B3, BDRs e renda fixa.">
   
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,28 +33,34 @@
       <div>
         <div style="display: flex; align-items: center;">
           <h1 class="brand-title">Radar Alpha</h1>
-          <span class="brand-badge">Garimpo PRO</span>
+          <span class="brand-badge">Multiativos PRO</span>
         </div>
-        <div class="brand-desc">Radar de Criptomoedas & Fundos Imobiliários em Tempo Real</div>
+        <div class="brand-desc">Cripto • FIIs • Fiagros • Ações B3 • BDRs EUA • Renda Fixa</div>
       </div>
     </div>
 
     <!-- Navegação por Abas -->
     <nav class="nav-tabs">
       <button class="tab-btn active" data-tab="tab-overview">
-        <span>🌟</span> Radar de Oportunidades
+        <span>🌟</span> Radar Geral
       </button>
       <button class="tab-btn" data-tab="tab-crypto">
         <span>🪙</span> Cripto ao Vivo
       </button>
       <button class="tab-btn" data-tab="tab-fii">
-        <span>🏢</span> Fundos Imobiliários (B3)
+        <span>🏢</span> FIIs & Fiagros
+      </button>
+      <button class="tab-btn" data-tab="tab-stocks">
+        <span>📈</span> Ações & BDRs
+      </button>
+      <button class="tab-btn" data-tab="tab-fixed">
+        <span>🏛️</span> Renda Fixa & Tesouro
       </button>
       <button class="tab-btn" data-tab="tab-simulator">
         <span>💼</span> Carteira Simulada
       </button>
       <button class="tab-btn" data-tab="tab-guide">
-        <span>📚</span> Guia do Iniciante
+        <span>📚</span> Guia do Investidor
       </button>
     </nav>
 
@@ -63,7 +69,7 @@
       <div class="virtual-wallet-chip" onclick="document.querySelector('[data-tab=tab-simulator]').click()">
         <div>
           <div class="wallet-label">Carteira Virtual</div>
-          <div class="wallet-value" id="wallet-display-value">R$ 25.000,00</div>
+          <div class="wallet-value" id="wallet-display-value">R$ 50.000,00</div>
         </div>
         <span style="font-size: 1.1rem;">💼</span>
       </div>
@@ -73,48 +79,53 @@
   <!-- Conteúdo Principal -->
   <main class="main-content">
 
-    <!-- ==================== ABA 1: RADAR DE OPORTUNIDADES ==================== -->
+    <!-- ==================== ABA 1: RADAR GERAL DE OPORTUNIDADES ==================== -->
     <section class="tab-pane active" id="tab-overview">
       
       <!-- Filtro Geral de Sinais (Compra vs Venda) -->
       <div class="filter-bar" style="margin-bottom: 24px;">
         <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-          <span>🔔</span> Filtrar Alertas de Mercado:
+          <span>🔔</span> Filtrar Alertas Globais:
         </span>
         <div class="filter-tags">
           <button class="filter-tag active" onclick="window.app.setGlobalSignalFilter('all', this)">
             ⚡ Todos os Sinais
           </button>
           <button class="filter-tag tag-buy" onclick="window.app.setGlobalSignalFilter('buy', this)">
-            🟢 Apenas Sinais de COMPRA
+            🟢 Apenas Sinais de COMPRA (Barganhas & Desconto)
           </button>
           <button class="filter-tag tag-sell" onclick="window.app.setGlobalSignalFilter('sell', this)">
-            🔴 Apenas Sinais de VENDA / REALIZAÇÃO
+            🔴 Apenas Sinais de VENDA (Ágio, Euforia & Realização)
           </button>
         </div>
       </div>
 
+      <!-- Seção Cripto -->
       <div class="section-header">
         <div class="section-title">
           <h2><span>🪙</span> Alertas de Oportunidades em Cripto</h2>
-          <p>Sinais automatizados: <strong>🟢 Compra</strong> (Volume Spikes, sobrevenda) e <strong>🔴 Venda</strong> (sobrecompra esticada, perda de suporte).</p>
+          <p>Sinais de tempo real da Binance: <strong>🟢 Compra</strong> (Volume Spikes, sobrevenda) e <strong>🔴 Venda</strong> (sobrecompra esticada, perda de suporte).</p>
         </div>
       </div>
+      <div class="opportunities-grid" id="crypto-opportunities-container"></div>
 
-      <div class="opportunities-grid" id="crypto-opportunities-container">
-        <!-- Injetado dinamicamente via crypto-radar.js -->
-      </div>
-
+      <!-- Seção FIIs e Fiagros -->
       <div class="section-header" style="margin-top: 40px;">
         <div class="section-title">
-          <h2><span>🏢</span> Alertas de Oportunidades em FIIs (B3)</h2>
-          <p>Sinais de valor patrimonial: <strong>🟢 Compra</strong> (P/VP descontado, alto DY) e <strong>🔴 Venda</strong> (ágio excessivo acima do valor justo).</p>
+          <h2><span>🏢</span> Alertas em FIIs & Fiagros (Renda Passiva Mensal)</h2>
+          <p>Tijolo, Papel e Agronegócio: <strong>🟢 Compra</strong> (P/VP descontado, dividendos de até 15% a.a.) e <strong>🔴 Venda</strong> (ágio excessivo).</p>
         </div>
       </div>
+      <div class="opportunities-grid" id="fii-opportunities-container"></div>
 
-      <div class="opportunities-grid" id="fii-opportunities-container">
-        <!-- Injetado dinamicamente via fii-radar.js -->
+      <!-- Seção Ações e BDRs -->
+      <div class="section-header" style="margin-top: 40px;">
+        <div class="section-title">
+          <h2><span>📈</span> Alertas em Ações B3 & BDRs Globais</h2>
+          <p>Métodos de Benjamin Graham & Décio Bazin: <strong>🟢 Compra</strong> (empresas baratas com lucros consistentes) e <strong>🔴 Venda</strong> (múltiplos caros).</p>
+        </div>
       </div>
+      <div class="opportunities-grid" id="stocks-opportunities-container"></div>
     </section>
 
     <!-- ==================== ABA 2: CRIPTO AO VIVO ==================== -->
@@ -126,11 +137,10 @@
         </div>
       </div>
 
-      <!-- Barra de Filtros e Busca -->
       <div class="filter-bar">
         <div class="search-box">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <input type="text" id="crypto-search-input" placeholder="Buscar criptomoeda (Ex: BTC, SOL, ETH, DOGE)...">
+          <input type="text" id="crypto-search-input" placeholder="Buscar criptomoeda (Ex: BTC, SOL, ETH, DOGE, PEPE)...">
         </div>
         <div class="filter-tags">
           <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setTableFilter('all')">
@@ -148,7 +158,6 @@
         </div>
       </div>
 
-      <!-- Tabela Cripto -->
       <div class="table-container">
         <table class="market-table">
           <thead>
@@ -163,23 +172,17 @@
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="crypto-table-body">
-            <tr>
-              <td colspan="8" style="text-align: center; padding: 30px; color: var(--text-dim);">
-                Carregando dados da Binance...
-              </td>
-            </tr>
-          </tbody>
+          <tbody id="crypto-table-body"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ==================== ABA 3: FUNDOS IMOBILIÁRIOS ==================== -->
+    <!-- ==================== ABA 3: FIIs & FIAGROS ==================== -->
     <section class="tab-pane" id="tab-fii">
       <div class="section-header">
         <div class="section-title">
-          <h2><span>🏢</span> Fundos Imobiliários da B3</h2>
-          <p>Métricas fundamentais de Tijolo, Papel e Shoppings com links de negociação e calculadora bola de neve.</p>
+          <h2><span>🏢</span> Fundos Imobiliários & 🌾 Fiagros da B3</h2>
+          <p>Imóveis comerciais, galpões logísticos e crédito do agronegócio com proventos mensais isentos de Imposto de Renda.</p>
         </div>
       </div>
 
@@ -191,7 +194,7 @@
               <span class="badge badge-discount" style="margin-bottom: 8px;">Simulador de Renda Passiva</span>
               <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Calculadora do Efeito Bola de Neve ❄️</h3>
               <p style="font-size: 0.84rem; color: var(--text-muted);">
-                Descubra quanto pingará na sua conta todo mês e quando o fundo passará a comprar cotas sozinho sem tirar do seu bolso.
+                Descubra quanto pingará na sua conta todo mês e quando os proventos comprarão novas cotas sozinhos no piloto automático.
               </p>
             </div>
 
@@ -201,10 +204,8 @@
             </div>
 
             <div class="input-group">
-              <label for="calc-fii-select">Escolha o Fundo Imobiliário</label>
-              <select id="calc-fii-select">
-                <!-- Preenchido via fii-radar.js -->
-              </select>
+              <label for="calc-fii-select">Escolha o Fundo Imobiliário ou Fiagro</label>
+              <select id="calc-fii-select"></select>
             </div>
           </div>
 
@@ -228,11 +229,10 @@
         </div>
       </div>
 
-      <!-- Barra de Filtros e Busca de FIIs -->
       <div class="filter-bar">
         <div class="search-box">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <input type="text" id="fii-search-input" placeholder="Buscar FII (Ex: MXRF11, HGLG11, XPML11)...">
+          <input type="text" id="fii-search-input" placeholder="Buscar FII ou Fiagro (Ex: MXRF11, VGIA11, HGLG11, RZAG11)...">
         </div>
         <div class="filter-tags">
           <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('all')">
@@ -245,15 +245,14 @@
             💰 Maior Dividend Yield
           </button>
           <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('tijolo')">
-            🏭 Tijolo (Imóveis Físicos)
+            🏭 Tijolo (Imóveis)
           </button>
           <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('papel')">
-            📄 Papel (CRIs e Títulos)
+            📄 Papel & Fiagros
           </button>
         </div>
       </div>
 
-      <!-- Tabela FIIs -->
       <div class="table-container">
         <table class="market-table">
           <thead>
@@ -269,32 +268,193 @@
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="fii-table-body">
-            <!-- Injetado dinamicamente via fii-radar.js -->
-          </tbody>
+          <tbody id="fii-table-body"></tbody>
         </table>
       </div>
     </section>
 
-    <!-- ==================== ABA 4: CARTEIRA SIMULADA ==================== -->
+    <!-- ==================== ABA 4: AÇÕES B3 & BDRs EUA ==================== -->
+    <section class="tab-pane" id="tab-stocks">
+      <div class="section-header">
+        <div class="section-title">
+          <h2><span>📈</span> Ações Brasileiras (B3) & 🇺🇸 BDRs Internacionais</h2>
+          <p>Empresas consolidadas, pagadoras de dividendos históricos e gigantes da tecnologia mundial em Dólar.</p>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-box">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input type="text" id="stock-search-input" placeholder="Buscar Ação ou BDR (Ex: BBAS3, PETR4, NVDC34, VALE3, AAPL34)...">
+        </div>
+        <div class="filter-tags">
+          <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.stocksRadar.setTableFilter('all')">
+            Todos
+          </button>
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.stocksRadar.setTableFilter('stocks')">
+            🇧🇷 Apenas Ações B3
+          </button>
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.stocksRadar.setTableFilter('bdrs')">
+            🇺🇸 BDRs EUA (Dolarizados)
+          </button>
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.stocksRadar.setTableFilter('dividends')">
+            💰 Maiores Dividendos
+          </button>
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.stocksRadar.setTableFilter('pl')">
+            🏷️ Menor P/L (Mais Baratas)
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="market-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ticker / Empresa</th>
+              <th>Setor</th>
+              <th>Cotação</th>
+              <th>P/L</th>
+              <th>P/VP</th>
+              <th>DY 12M</th>
+              <th>ROE</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="stocks-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== ABA 5: RENDA FIXA & TESOURO ==================== -->
+    <section class="tab-pane" id="tab-fixed">
+      <div class="section-header">
+        <div class="section-title">
+          <h2><span>🏛️</span> Renda Fixa & Tesouro Direto</h2>
+          <p>Títulos soberanos e bancários garantidos pelo FGC para reserva de emergência e previsibilidade total.</p>
+        </div>
+      </div>
+
+      <!-- Painel das Taxas Atuais de Mercado -->
+      <div class="portfolio-summary-bar" style="margin-bottom: 24px;">
+        <div class="summary-card">
+          <div class="title">Taxa Selic Meta</div>
+          <div class="value" style="color: var(--accent-green);">10.50% a.a.</div>
+        </div>
+        <div class="summary-card">
+          <div class="title">Taxa CDI</div>
+          <div class="value" style="color: var(--accent-blue);">10.40% a.a.</div>
+        </div>
+        <div class="summary-card">
+          <div class="title">Inflação (IPCA Estimado)</div>
+          <div class="value" style="color: var(--accent-amber);">4.10% a.a.</div>
+        </div>
+        <div class="summary-card">
+          <div class="title">Poupança Antiga/Nova</div>
+          <div class="value" style="color: var(--accent-red);">6.17% a.a.</div>
+        </div>
+      </div>
+
+      <!-- Simulador Comparativo de Juros Compostos -->
+      <div class="calculator-box" style="margin-bottom: 30px;">
+        <div style="margin-bottom: 20px;">
+          <span class="badge badge-discount" style="margin-bottom: 8px;">Comparador Interativo</span>
+          <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">Simulador de Acúmulo & Juros Compostos 📈</h3>
+          <p style="font-size: 0.86rem; color: var(--text-muted);">
+            Compare o poder de multiplicação do seu dinheiro entre a Poupança, Tesouro Selic, Tesouro IPCA+ e FIIs/Ações.
+          </p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-inputs">
+            <div class="input-group">
+              <label for="sim-initial-amount">Aporte Inicial (R$)</label>
+              <input type="number" id="sim-initial-amount" value="10000" step="1000" min="0">
+            </div>
+            <div class="input-group">
+              <label for="sim-monthly-amount">Aporte Mensal Recorrente (R$)</label>
+              <input type="number" id="sim-monthly-amount" value="500" step="100" min="0">
+            </div>
+            <div class="input-group">
+              <label for="sim-period-select">Prazo de Acúmulo</label>
+              <select id="sim-period-select">
+                <option value="1">1 Ano (12 meses)</option>
+                <option value="3" selected>3 Anos (36 meses)</option>
+                <option value="5">5 Anos (60 meses)</option>
+                <option value="10">10 Anos (120 meses)</option>
+              </select>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-dim);">
+              Total que sairá do seu bolso: <strong id="sim-total-invested-display" style="color: var(--text-main);">R$ 28.000,00</strong>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: rgba(10, 14, 23, 0.85); padding: 14px 18px; border-radius: 10px; border-left: 4px solid var(--accent-red); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: var(--text-muted); font-size: 0.88rem;">🐷 Poupança</strong>
+                <div id="res-poupanca-profit" style="font-size: 0.78rem; color: var(--accent-red);">+ R$ 0,00</div>
+              </div>
+              <div id="res-poupanca-final" class="mono" style="font-size: 1.25rem; font-weight: 800;">R$ 0,00</div>
+            </div>
+
+            <div style="background: rgba(10, 14, 23, 0.85); padding: 14px 18px; border-radius: 10px; border-left: 4px solid var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: var(--text-muted); font-size: 0.88rem;">🏛️ Tesouro Selic / CDB 100%</strong>
+                <div id="res-selic-profit" style="font-size: 0.78rem; color: var(--accent-green);">+ R$ 0,00</div>
+              </div>
+              <div id="res-selic-final" class="mono" style="font-size: 1.25rem; font-weight: 800;">R$ 0,00</div>
+            </div>
+
+            <div style="background: rgba(10, 14, 23, 0.85); padding: 14px 18px; border-radius: 10px; border-left: 4px solid var(--accent-green); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: var(--text-muted); font-size: 0.88rem;">🛡️ Tesouro IPCA+ (Juros Reais)</strong>
+                <div id="res-ipca-profit" style="font-size: 0.78rem; color: var(--accent-green);">+ R$ 0,00</div>
+              </div>
+              <div id="res-ipca-final" class="mono" style="font-size: 1.25rem; font-weight: 800;">R$ 0,00</div>
+            </div>
+
+            <div style="background: rgba(10, 14, 23, 0.85); padding: 14px 18px; border-radius: 10px; border-left: 4px solid var(--accent-amber); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: var(--text-muted); font-size: 0.88rem;">🏢 FIIs / Ações (Dividendos Reinvestidos)</strong>
+                <div id="res-fiis-profit" style="font-size: 0.78rem; color: var(--accent-green);">+ R$ 0,00</div>
+              </div>
+              <div id="res-fiis-final" class="mono" style="font-size: 1.25rem; font-weight: 800; color: var(--accent-green);">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de Títulos -->
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px;">Títulos em Destaque no Tesouro e Renda Fixa</h3>
+      <div class="opportunities-grid" id="fixed-income-grid"></div>
+    </section>
+
+    <!-- ==================== ABA 6: CARTEIRA SIMULADA ==================== -->
     <section class="tab-pane" id="tab-simulator">
       <div class="section-header">
         <div class="section-title">
-          <h2><span>💼</span> Sua Carteira Virtual de Treinamento</h2>
-          <p>Pratique compras e vendas sem arriscar seu dinheiro. Teste suas teses de investimento e acompanhe a evolução patrimonial.</p>
+          <h2><span>💼</span> Sua Carteira Virtual Multiativos</h2>
+          <p>Monte uma carteira diversificada como os grandes investidores com seu saldo simulado de R$ 50.000,00.</p>
         </div>
         <div>
           <button class="btn btn-outline btn-sm" onclick="window.app.simulator.resetPortfolio()">
-            🔄 Reiniciar Carteira (R$ 25.000)
+            🔄 Reiniciar Carteira (R$ 50.000)
           </button>
         </div>
+      </div>
+
+      <!-- Barra de Alocação de Ativos -->
+      <div class="summary-card" style="margin-bottom: 24px;">
+        <div class="title" style="margin-bottom: 8px;">Distribuição de Ativos do seu Portfólio</div>
+        <div id="portfolio-allocation-bar"></div>
       </div>
 
       <!-- Cards de Resumo -->
       <div class="portfolio-summary-bar">
         <div class="summary-card">
-          <div class="title">Saldo Disponível em Caixa</div>
-          <div class="value" id="port-cash" style="color: var(--accent-blue);">R$ 25.000,00</div>
+          <div class="title">Saldo em Caixa (Disponível)</div>
+          <div class="value" id="port-cash" style="color: var(--accent-blue);">R$ 50.000,00</div>
         </div>
         <div class="summary-card">
           <div class="title">Total Alocado em Ativos</div>
@@ -302,7 +462,7 @@
         </div>
         <div class="summary-card">
           <div class="title">Patrimônio Total</div>
-          <div class="value" id="port-total">R$ 25.000,00</div>
+          <div class="value" id="port-total">R$ 50.000,00</div>
         </div>
         <div class="summary-card">
           <div class="title">Resultado / Lucro Total</div>
@@ -326,9 +486,7 @@
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody id="portfolio-positions-body">
-              <!-- Injetado dinamicamente -->
-            </tbody>
+            <tbody id="portfolio-positions-body"></tbody>
           </table>
         </div>
       </div>
@@ -347,83 +505,81 @@
                 <th>Valor Total (R$)</th>
               </tr>
             </thead>
-            <tbody id="portfolio-history-body">
-              <!-- Injetado dinamicamente -->
-            </tbody>
+            <tbody id="portfolio-history-body"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- ==================== ABA 5: GUIA DO INICIANTE ==================== -->
+    <!-- ==================== ABA 7: GUIA DO INVESTIDOR ==================== -->
     <section class="tab-pane" id="tab-guide">
       <div class="section-header">
         <div class="section-title">
-          <h2><span>📚</span> Dicionário Prático do Investidor</h2>
-          <p>Tudo o que você precisa saber para entender o mercado sem complicação e sem jargões confusos.</p>
+          <h2><span>📚</span> Dicionário Multiativos do Investidor</h2>
+          <p>Tudo o que você precisa saber sobre cada classe de investimento para operar com confiança.</p>
         </div>
       </div>
 
       <div class="dictionary-grid">
         <div class="dict-card">
-          <div class="dict-term">🟢 Sinais de Compra vs 🔴 Venda</div>
+          <div class="dict-term">📊 P/L (Preço sobre Lucro)</div>
           <div class="dict-meaning">
-            Como saber a hora de comprar e a hora de realizar lucro?
+            Indica em quantos anos o lucro da empresa pagaria o valor que você pagou pela ação.
           </div>
           <div class="dict-example">
-            • <strong>Compra:</strong> Quando o ativo está barato/descontado (P/VP < 1.00 ou RSI < 30) e começa a entrar volume comprador.<br>
-            • <strong>Venda/Realização:</strong> Quando o ativo subiu demais e ficou sobrecomprado (P/VP > 1.05 ou esticada de +15%). É a hora de colocar o lucro no bolso!
+            Se uma ação tem <strong>P/L de 5x</strong>, significa que ela é muito barata e em 5 anos seus lucros acumulados se igualam ao preço pago. Acima de 25x é considerada cara.
           </div>
         </div>
 
         <div class="dict-card">
-          <div class="dict-term">🏷️ P/VP (Preço sobre Valor Patrimonial)</div>
+          <div class="dict-term">🌾 O que são Fiagros?</div>
           <div class="dict-meaning">
-            Indica quanto você está pagando em relação ao valor contábil dos imóveis ou títulos do fundo.
+            Fundos de Investimento no Agronegócio brasileiro.
           </div>
           <div class="dict-example">
-            • <strong>P/VP < 1.00:</strong> Desconto patrimonial (oportunidade de compra).<br>
-            • <strong>P/VP > 1.05:</strong> Negociando com ágio (alerta de realização de lucro).
+            Funcionam exatamente como os Fundos Imobiliários: pagam <strong>dividendos mensais isentos de IR</strong> na sua conta (geralmente entre 13% e 16% ao ano), financiando a produção do campo.
           </div>
         </div>
 
         <div class="dict-card">
-          <div class="dict-term">💰 Dividend Yield (DY)</div>
+          <div class="dict-term">👑 Fórmula de Benjamin Graham</div>
           <div class="dict-meaning">
-            Percentual de rendimentos que o ativo pagou em relação à sua cotação nos últimos 12 meses.
+            O método criado pelo mentor de Warren Buffett para descobrir o valor justo de uma ação.
           </div>
           <div class="dict-example">
-            Se uma cota de FII custa R$ 100 e pagou R$ 11 em dividendos no ano, seu DY é de <strong>11% ao ano</strong> (isento de Imposto de Renda para pessoa física).
+            A fórmula cruza o lucro por ação (LPA) com o patrimônio (VPA). Se a ação na bolsa custa menos que o preço Graham, ela tem <strong>margem de segurança</strong> para compra!
           </div>
         </div>
 
         <div class="dict-card">
-          <div class="dict-term">❄️ Efeito Bola de Neve (Snowball)</div>
+          <div class="dict-term">🇺🇸 BDRs (Ações Globais na B3)</div>
           <div class="dict-meaning">
-            O momento em que os dividendos mensais recebidos são suficientes para comprar pelo menos uma nova cota do mesmo fundo sem você colocar dinheiro do próprio bolso.
+            Certificados negociados na bolsa brasileira em Reais que representam ações de gigantes dos EUA (Apple, Nvidia, Microsoft).
           </div>
           <div class="dict-example">
-            A partir desse ponto, seus investimentos crescem exponencialmente no piloto automático!
+            Permite a você dolarizar seu patrimônio e lucrar com as maiores empresas de tecnologia do mundo direto pelo seu home broker.
           </div>
         </div>
 
         <div class="dict-card">
-          <div class="dict-term">🔥 Volume Spikes (Cripto)</div>
+          <div class="dict-term">🏛️ Taxa Selic & CDI</div>
           <div class="dict-meaning">
-            Um aumento repentino no volume financeiro negociado de uma moeda em poucas horas.
+            A taxa de juros oficial do Brasil e o referencial de toda a renda fixa.
           </div>
           <div class="dict-example">
-            Sinaliza que grandes investidores ou instituições ("baleias") entraram no ativo, gerando fortes movimentações de preço.
+            Com a Selic em 10.50% a.a., qualquer investimento que pague 100% do CDI dobra seu dinheiro em cerca de 7 anos com risco praticamente zero.
           </div>
         </div>
 
         <div class="dict-card">
-          <div class="dict-term">🛡️ Gestão de Risco & Stop Loss</div>
+          <div class="dict-term">🛡️ A Regra do Tripé Financeiro</div>
           <div class="dict-meaning">
-            A regra de ouro dos investimentos: nunca coloque em criptomoedas ou ativos voláteis um dinheiro que você precise no curto prazo.
+            Como os investidores inteligentes dividem o dinheiro:
           </div>
           <div class="dict-example">
-            Use a Carteira Virtual desta plataforma para errar, aprender e calibrar seu estômago antes de fazer seu primeiro aporte real!
+            • <strong>Renda Fixa:</strong> Segurança e reserva.<br>
+            • <strong>FIIs, Fiagros e Ações:</strong> Renda passiva mensal e crescimento.<br>
+            • <strong>Cripto e BDRs:</strong> Alto potencial de multiplicação e dolarização.
           </div>
         </div>
       </div>
@@ -449,7 +605,7 @@
 
         <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-dim); margin-bottom: 20px;">
           <span>Saldo disponível em caixa:</span>
-          <strong id="modal-available-cash" style="color: var(--accent-green);">R$ 25.000,00</strong>
+          <strong id="modal-available-cash" style="color: var(--accent-green);">R$ 50.000,00</strong>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -464,9 +620,11 @@
   <!-- Container de Toasts de Notificação -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- Scripts -->
+  <!-- Scripts dos Módulos -->
   <script src="js/crypto-radar.js"></script>
   <script src="js/fii-radar.js"></script>
+  <script src="js/stocks-radar.js"></script>
+  <script src="js/fixed-income.js"></script>
   <script src="js/simulator.js"></script>
   <script src="js/app.js"></script>
 </body>

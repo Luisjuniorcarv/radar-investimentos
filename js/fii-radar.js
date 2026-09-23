@@ -166,6 +166,51 @@ class FiiRadar {
         lastDividend: 0.98,
         liquidity: 'R$ 4.7M/dia',
         description: 'Imóveis voltados para supermercados e universidades renomadas, com fluxos de caixa previsíveis.'
+      },
+      // Fiagros (Agronegócio da B3)
+      {
+        ticker: 'VGIA11',
+        name: 'Valora CRA Fiagro',
+        segment: 'Fiagro (Agronegócio / CRA)',
+        price: 8.92,
+        pvp: 0.94,
+        dy12m: 14.8,
+        lastDividend: 0.11,
+        liquidity: 'R$ 3.8M/dia',
+        description: 'Um dos maiores Fiagros da B3 em cotistas. Financia produtores e cooperativas agro com dividendos mensais acima de 14% a.a.'
+      },
+      {
+        ticker: 'KNCA11',
+        name: 'Kinea Crédito Agro',
+        segment: 'Fiagro (Agronegócio / CRA)',
+        price: 101.40,
+        pvp: 0.98,
+        dy12m: 13.2,
+        lastDividend: 1.10,
+        liquidity: 'R$ 4.2M/dia',
+        description: 'Gerido pela Kinea (Itaú), com foco em crédito agrícola para grandes corporações do agronegócio nacional.'
+      },
+      {
+        ticker: 'RZAG11',
+        name: 'Riza Agro Fiagro',
+        segment: 'Fiagro (Agronegócio / Terras & CRAs)',
+        price: 8.85,
+        pvp: 0.91,
+        dy12m: 15.4,
+        lastDividend: 0.11,
+        liquidity: 'R$ 2.9M/dia',
+        description: 'Fundo agro focado em operações estruturadas com alto retorno de proventos mensais isentos de IR.'
+      },
+      {
+        ticker: 'SNAG11',
+        name: 'Suno Agro Fiagro',
+        segment: 'Fiagro (Agronegócio / CRA High Grade)',
+        price: 10.05,
+        pvp: 1.00,
+        dy12m: 12.8,
+        lastDividend: 0.105,
+        liquidity: 'R$ 2.5M/dia',
+        description: 'Fiagro conservador focado em pulverização e baixo risco de crédito no agronegócio.'
       }
     ];
 

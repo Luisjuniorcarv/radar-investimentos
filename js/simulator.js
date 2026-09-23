@@ -1,8 +1,8 @@
-// Simulador de Investimentos (Paper Trading / Carteira Virtual)
+// Simulador de Investimentos Multiativos (Cripto, FIIs, Fiagros, Ações B3, BDRs e Renda Fixa)
 class PortfolioSimulator {
   constructor() {
-    this.storageKey = 'radar_alpha_portfolio_v1';
-    this.usdToBrl = 5.65; // Cotação de conversão de dólar para cotações cripto
+    this.storageKey = 'radar_alpha_portfolio_v2';
+    this.usdToBrl = 5.65;
     this.state = this.loadState();
   }
 
@@ -17,9 +17,9 @@ class PortfolioSimulator {
     }
 
     return {
-      initialCash: 25000.00,
-      cash: 25000.00,
-      positions: {}, // { 'BTCUSDT': { symbol: 'BTCUSDT', type: 'crypto', qty: 0.05, avgPriceUsd: 65000, avgPriceBrl: 367250 } }
+      initialCash: 50000.00, // R$ 50.000 para permitir montar uma carteira diversificada
+      cash: 50000.00,
+      positions: {},
       history: []
     };
   }
@@ -30,10 +30,10 @@ class PortfolioSimulator {
   }
 
   resetPortfolio() {
-    if (confirm('Deseja realmente reiniciar sua carteira virtual para R$ 25.000,00?')) {
+    if (confirm('Deseja realmente reiniciar sua carteira virtual para R$ 50.000,00?')) {
       this.state = {
-        initialCash: 25000.00,
-        cash: 25000.00,
+        initialCash: 50000.00,
+        cash: 50000.00,
         positions: {},
         history: []
       };
@@ -59,8 +59,11 @@ class PortfolioSimulator {
     if (type === 'crypto') {
       unitPriceBrl = price * this.usdToBrl;
       qty = amountBrl / unitPriceBrl;
+    } else if (type === 'fixed_income') {
+      qty = amountBrl;
+      unitPriceBrl = 1.00;
     } else {
-      // FII (compra por cotas inteiras)
+      // Ações, FIIs, Fiagros, BDRs (compra por unidades/cotas inteiras)
       const shares = Math.floor(amountBrl / price);
       if (shares <= 0) {
         window.app.showToast(`Valor insuficiente para comprar 1 cota de ${symbol} (R$ ${price.toFixed(2)})`, 'error');
@@ -77,7 +80,8 @@ class PortfolioSimulator {
       type,
       qty: 0,
       totalInvestedBrl: 0,
-      avgPriceBrl: 0
+      avgPriceBrl: 0,
+      buyDate: Date.now()
     };
 
     const newTotalInvested = existing.totalInvestedBrl + amountBrl;
@@ -89,13 +93,15 @@ class PortfolioSimulator {
       type,
       qty: newQty,
       totalInvestedBrl: newTotalInvested,
-      avgPriceBrl: newAvgPrice
+      avgPriceBrl: newAvgPrice,
+      buyDate: existing.buyDate || Date.now()
     };
 
     this.state.history.unshift({
       id: Date.now(),
       date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       type: 'COMPRA',
+      assetType: type,
       symbol,
       qty,
       unitPriceBrl,
@@ -103,7 +109,7 @@ class PortfolioSimulator {
     });
 
     this.saveState();
-    window.app.showToast(`Compra realizada: ${qty.toFixed(type === 'crypto' ? 4 : 0)} de ${symbol}`);
+    window.app.showToast(`Compra realizada: ${qty % 1 === 0 ? qty : qty.toFixed(4)} de ${symbol}`);
     return true;
   }
 
@@ -114,16 +120,7 @@ class PortfolioSimulator {
       return false;
     }
 
-    // Obter preço atual
-    let currentPriceBrl = 0;
-    if (pos.type === 'crypto') {
-      const coin = window.app.cryptoRadar.cryptoData.get(symbol);
-      currentPriceBrl = (coin ? coin.lastPrice : (pos.avgPriceBrl / this.usdToBrl)) * this.usdToBrl;
-    } else {
-      const fii = window.app.fiiRadar.fiiList.find(f => f.ticker === symbol);
-      currentPriceBrl = fii ? fii.price : pos.avgPriceBrl;
-    }
-
+    const currentPriceBrl = this.getCurrentAssetPrice(pos.symbol, pos.type, pos.avgPriceBrl);
     const totalSaleBrl = sellQty * currentPriceBrl;
     this.state.cash += totalSaleBrl;
 
@@ -138,6 +135,7 @@ class PortfolioSimulator {
       id: Date.now(),
       date: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       type: 'VENDA',
+      assetType: pos.type,
       symbol,
       qty: sellQty,
       unitPriceBrl: currentPriceBrl,
@@ -149,20 +147,41 @@ class PortfolioSimulator {
     return true;
   }
 
+  getCurrentAssetPrice(symbol, type, fallback) {
+    if (type === 'crypto') {
+      const coin = window.app.cryptoRadar?.cryptoData?.get(symbol);
+      return coin ? coin.lastPrice * this.usdToBrl : fallback;
+    } else if (type === 'fii' || type === 'fiagro') {
+      const fii = window.app.fiiRadar?.fiiList?.find(f => f.ticker === symbol);
+      return fii ? fii.price : fallback;
+    } else if (type === 'stock' || type === 'bdr') {
+      const stock = window.app.stocksRadar?.stocksList?.find(s => s.ticker === symbol);
+      return stock ? stock.price : fallback;
+    } else if (type === 'fixed_income') {
+      // Rendimento aproximado de 10.5% a.a. sobre o principal
+      return 1.00;
+    }
+    return fallback;
+  }
+
   getCurrentPortfolioValue() {
     let assetsValue = 0;
+    const allocation = {
+      crypto: 0,
+      fii: 0,
+      fiagro: 0,
+      stock: 0,
+      bdr: 0,
+      fixed_income: 0
+    };
 
     Object.values(this.state.positions).forEach(pos => {
-      let currentPriceBrl = 0;
-      if (pos.type === 'crypto') {
-        const coin = window.app.cryptoRadar.cryptoData.get(pos.symbol);
-        const lastUsd = coin ? coin.lastPrice : (pos.avgPriceBrl / this.usdToBrl);
-        currentPriceBrl = lastUsd * this.usdToBrl;
-      } else {
-        const fii = window.app.fiiRadar.fiiList.find(f => f.ticker === pos.symbol);
-        currentPriceBrl = fii ? fii.price : pos.avgPriceBrl;
-      }
-      assetsValue += pos.qty * currentPriceBrl;
+      const currentPriceBrl = this.getCurrentAssetPrice(pos.symbol, pos.type, pos.avgPriceBrl);
+      const val = pos.qty * currentPriceBrl;
+      assetsValue += val;
+
+      const cat = pos.type || 'stock';
+      allocation[cat] = (allocation[cat] || 0) + val;
     });
 
     const totalEquity = this.state.cash + assetsValue;
@@ -174,7 +193,8 @@ class PortfolioSimulator {
       assetsValue,
       totalEquity,
       totalProfitBrl,
-      totalProfitPct
+      totalProfitPct,
+      allocation
     };
   }
 
@@ -203,8 +223,43 @@ class PortfolioSimulator {
       profitEl.style.color = isPositive ? 'var(--accent-green)' : 'var(--accent-red)';
     }
 
+    this.renderAllocationBar(portfolio);
     this.renderPositionsTable();
     this.renderHistoryTable();
+  }
+
+  renderAllocationBar(portfolio) {
+    const bar = document.getElementById('portfolio-allocation-bar');
+    if (!bar) return;
+
+    const total = portfolio.totalEquity;
+    if (total <= 0) return;
+
+    const cashPct = ((portfolio.cash / total) * 100).toFixed(1);
+    const cryptoPct = (((portfolio.allocation.crypto || 0) / total) * 100).toFixed(1);
+    const fiiPct = ((((portfolio.allocation.fii || 0) + (portfolio.allocation.fiagro || 0)) / total) * 100).toFixed(1);
+    const stockPct = (((portfolio.allocation.stock || 0) / total) * 100).toFixed(1);
+    const bdrPct = (((portfolio.allocation.bdr || 0) / total) * 100).toFixed(1);
+    const fixedPct = (((portfolio.allocation.fixed_income || 0) / total) * 100).toFixed(1);
+
+    bar.innerHTML = `
+      <div style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: #1a263d; margin-bottom: 12px;">
+        <div style="width: ${cashPct}%; background: #00d2ff;" title="Caixa: ${cashPct}%"></div>
+        <div style="width: ${cryptoPct}%; background: #00f59b;" title="Cripto: ${cryptoPct}%"></div>
+        <div style="width: ${fiiPct}%; background: #ffb800;" title="FIIs & Agro: ${fiiPct}%"></div>
+        <div style="width: ${stockPct}%; background: #9d4edd;" title="Ações B3: ${stockPct}%"></div>
+        <div style="width: ${bdrPct}%; background: #ff4d6d;" title="BDRs EUA: ${bdrPct}%"></div>
+        <div style="width: ${fixedPct}%; background: #48cae4;" title="Renda Fixa: ${fixedPct}%"></div>
+      </div>
+      <div style="display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted);">
+        <span><strong style="color: #00d2ff;">● Caixa:</strong> ${cashPct}%</span>
+        <span><strong style="color: #00f59b;">● Cripto:</strong> ${cryptoPct}%</span>
+        <span><strong style="color: #ffb800;">● FIIs & Agro:</strong> ${fiiPct}%</span>
+        <span><strong style="color: #9d4edd;">● Ações B3:</strong> ${stockPct}%</span>
+        <span><strong style="color: #ff4d6d;">● BDRs EUA:</strong> ${bdrPct}%</span>
+        <span><strong style="color: #48cae4;">● Renda Fixa:</strong> ${fixedPct}%</span>
+      </div>
+    `;
   }
 
   renderPositionsTable() {
@@ -216,7 +271,7 @@ class PortfolioSimulator {
       tbody.innerHTML = `
         <tr>
           <td colspan="7" style="text-align: center; padding: 30px; color: var(--text-dim);">
-            Nenhum ativo na carteira simulada. Use os botões <strong>"Simular Compra"</strong> no Radar de Cripto ou FIIs para praticar!
+            Nenhum ativo na carteira simulada. Use os botões <strong>"Simular"</strong> em qualquer ativo para montar seu portfólio!
           </td>
         </tr>
       `;
@@ -224,27 +279,28 @@ class PortfolioSimulator {
     }
 
     tbody.innerHTML = positions.map(pos => {
-      let currentPriceBrl = 0;
-      if (pos.type === 'crypto') {
-        const coin = window.app.cryptoRadar.cryptoData.get(pos.symbol);
-        currentPriceBrl = (coin ? coin.lastPrice : (pos.avgPriceBrl / this.usdToBrl)) * this.usdToBrl;
-      } else {
-        const fii = window.app.fiiRadar.fiiList.find(f => f.ticker === pos.symbol);
-        currentPriceBrl = fii ? fii.price : pos.avgPriceBrl;
-      }
-
+      const currentPriceBrl = this.getCurrentAssetPrice(pos.symbol, pos.type, pos.avgPriceBrl);
       const totalCurrentBrl = pos.qty * currentPriceBrl;
       const profitBrl = totalCurrentBrl - pos.totalInvestedBrl;
       const profitPct = pos.totalInvestedBrl > 0 ? (profitBrl / pos.totalInvestedBrl) * 100 : 0;
       const isPos = profitBrl >= 0;
 
+      const typeBadges = {
+        crypto: '🪙 Cripto',
+        fii: '🏢 FII',
+        fiagro: '🌾 Fiagro',
+        stock: '📈 Ação',
+        bdr: '🇺🇸 BDR',
+        fixed_income: '🏛️ Renda Fixa'
+      };
+
       return `
         <tr>
           <td>
             <strong>${pos.symbol}</strong>
-            <span class="badge" style="margin-left: 6px; font-size: 0.65rem;">${pos.type.toUpperCase()}</span>
+            <span class="badge" style="margin-left: 6px; font-size: 0.65rem;">${typeBadges[pos.type] || pos.type.toUpperCase()}</span>
           </td>
-          <td class="mono">${pos.type === 'crypto' ? pos.qty.toFixed(4) : pos.qty.toFixed(0)}</td>
+          <td class="mono">${pos.type === 'crypto' ? pos.qty.toFixed(4) : (pos.type === 'fixed_income' ? 'R$ ' + pos.qty.toFixed(2) : pos.qty.toFixed(0))}</td>
           <td class="mono">R$ ${pos.avgPriceBrl.toFixed(2)}</td>
           <td class="mono">R$ ${currentPriceBrl.toFixed(2)}</td>
           <td class="mono" style="font-weight: 700;">R$ ${totalCurrentBrl.toFixed(2)}</td>
