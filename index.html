@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radar Alpha • Garimpo Multiativos (Cripto, FIIs, Fiagros, Ações B3, BDRs e Renda Fixa)</title>
-  <meta name="description" content="Plataforma de inteligência financeira pessoal para monitorar o mercado cripto em tempo real, fundos imobiliários, agronegócio, ações da B3, BDRs e renda fixa.">
+  <title>Radar Alpha • Terminal Multiativos com Dashboard & Gráficos em Tempo Real</title>
+  <meta name="description" content="Dashboard financeiro com gráficos interativos TradingView, comparador analítico Chart.js, radar de oportunidades e carteira simulada.">
   
   <!-- Fontes do Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
+  <!-- Chart.js CDN Oficial -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -33,16 +36,19 @@
       <div>
         <div style="display: flex; align-items: center;">
           <h1 class="brand-title">Radar Alpha</h1>
-          <span class="brand-badge">Multiativos PRO</span>
+          <span class="brand-badge">Terminal PRO</span>
         </div>
-        <div class="brand-desc">Cripto • FIIs • Fiagros • Ações B3 • BDRs EUA • Renda Fixa</div>
+        <div class="brand-desc">Dashboard & Gráficos • Cripto • FIIs • Ações B3 • BDRs • Renda Fixa</div>
       </div>
     </div>
 
     <!-- Navegação por Abas -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" data-tab="tab-overview">
-        <span>🌟</span> Radar Geral
+      <button class="tab-btn active" data-tab="tab-dashboard">
+        <span>📊</span> Dashboard & Gráficos
+      </button>
+      <button class="tab-btn" data-tab="tab-overview">
+        <span>🌟</span> Radar de Oportunidades
       </button>
       <button class="tab-btn" data-tab="tab-crypto">
         <span>🪙</span> Cripto ao Vivo
@@ -79,10 +85,134 @@
   <!-- Conteúdo Principal -->
   <main class="main-content">
 
-    <!-- ==================== ABA 1: RADAR GERAL DE OPORTUNIDADES ==================== -->
-    <section class="tab-pane active" id="tab-overview">
-      
-      <!-- Filtro Geral de Sinais (Compra vs Venda) -->
+    <!-- ==================== ABA 1: DASHBOARD & GRÁFICOS INTERATIVOS ==================== -->
+    <section class="tab-pane active" id="tab-dashboard">
+      <div class="section-header">
+        <div class="section-title">
+          <h2><span>📊</span> Painel de Controle & Visão Macro do Mercado</h2>
+          <p>Gráficos interativos em tempo real, termômetro de sentimento, radar de dividendos e distribuição de patrimônio.</p>
+        </div>
+      </div>
+
+      <!-- KPIs do Mercado -->
+      <div class="dashboard-kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">
+            <span>Sentimento do Mercado</span>
+            <span>🌡️</span>
+          </div>
+          <div class="kpi-value" style="color: var(--accent-green);">68 / 100</div>
+          <div class="kpi-subtitle">Ganância Moderada (Cripto & Ações)</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">
+            <span>Dólar Comercial (PTAX)</span>
+            <span>💵</span>
+          </div>
+          <div class="kpi-value" style="color: var(--accent-blue);">R$ 5,65</div>
+          <div class="kpi-subtitle">Conversão oficial em tempo real</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">
+            <span>Dominância do Bitcoin</span>
+            <span>🪙</span>
+          </div>
+          <div class="kpi-value" style="color: var(--accent-amber);">58.4%</div>
+          <div class="kpi-subtitle">Fatia do BTC no mercado global</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">
+            <span>DY Médio FIIs & Fiagros</span>
+            <span>🏢</span>
+          </div>
+          <div class="kpi-value" style="color: var(--accent-green);">12.2% a.a.</div>
+          <div class="kpi-subtitle">Renda passiva mensal isenta de IR</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">
+            <span>Taxa Selic Meta</span>
+            <span>🏛️</span>
+          </div>
+          <div class="kpi-value" style="color: var(--accent-blue);">10.50% a.a.</div>
+          <div class="kpi-subtitle">Referencial de toda a renda fixa</div>
+        </div>
+      </div>
+
+      <!-- Studio de Gráficos: TradingView Interativo + Gráfico de Alocação -->
+      <div class="charts-studio-container" id="tv-chart-wrapper">
+        
+        <!-- Painel do Gráfico TradingView -->
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <h3><span>📈</span> Gráfico de Velas Profissional (Tempo Real)</h3>
+            <div class="tv-asset-pills">
+              <button class="tv-asset-btn active" data-symbol="BINANCE:BTCUSDT">Bitcoin</button>
+              <button class="tv-asset-btn" data-symbol="BINANCE:ETHUSDT">Ethereum</button>
+              <button class="tv-asset-btn" data-symbol="BINANCE:SOLUSDT">Solana</button>
+              <button class="tv-asset-btn" data-symbol="BMFBOVESPA:PETR4">Petrobras</button>
+              <button class="tv-asset-btn" data-symbol="BMFBOVESPA:VALE3">Vale</button>
+              <button class="tv-asset-btn" data-symbol="NASDAQ:NVDA">Nvidia</button>
+              <button class="tv-asset-btn" data-symbol="BMFBOVESPA:IVVB11">S&P 500</button>
+            </div>
+          </div>
+          <div id="tradingview-widget-container"></div>
+        </div>
+
+        <!-- Painel da Rosca de Alocação da Carteira -->
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <h3><span>🍩</span> Alocação da sua Carteira</h3>
+          </div>
+          <div class="chart-canvas-wrapper" style="height: 380px;">
+            <canvas id="chart-portfolio-donut"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Linha 2 de Gráficos Analíticos (Chart.js) -->
+      <div class="analytics-row-grid">
+        
+        <!-- Gráfico de Comparativo de Yields -->
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3><span>💰</span> Ranking de Dividend Yield & Retorno Anual</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                Comparativo de rentabilidade entre Fiagros, FIIs, Ações e Renda Fixa
+              </p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-yield-comparison"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico do Efeito Bola de Neve ao Longo do Tempo -->
+        <div class="chart-panel">
+          <div class="chart-panel-header">
+            <div>
+              <h3><span>❄️</span> Curva de Crescimento da Bola de Neve (5 Anos)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                Diferença exponencial ao reinvestir dividendos vs guardar apenas o aporte
+              </p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="chart-snowball-growth"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== ABA 2: RADAR DE OPORTUNIDADES ==================== -->
+    <section class="tab-pane" id="tab-overview">
       <div class="filter-bar" style="margin-bottom: 24px;">
         <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
           <span>🔔</span> Filtrar Alertas Globais:
@@ -100,7 +230,6 @@
         </div>
       </div>
 
-      <!-- Seção Cripto -->
       <div class="section-header">
         <div class="section-title">
           <h2><span>🪙</span> Alertas de Oportunidades em Cripto</h2>
@@ -109,7 +238,6 @@
       </div>
       <div class="opportunities-grid" id="crypto-opportunities-container"></div>
 
-      <!-- Seção FIIs e Fiagros -->
       <div class="section-header" style="margin-top: 40px;">
         <div class="section-title">
           <h2><span>🏢</span> Alertas em FIIs & Fiagros (Renda Passiva Mensal)</h2>
@@ -118,7 +246,6 @@
       </div>
       <div class="opportunities-grid" id="fii-opportunities-container"></div>
 
-      <!-- Seção Ações e BDRs -->
       <div class="section-header" style="margin-top: 40px;">
         <div class="section-title">
           <h2><span>📈</span> Alertas em Ações B3 & BDRs Globais</h2>
@@ -128,7 +255,7 @@
       <div class="opportunities-grid" id="stocks-opportunities-container"></div>
     </section>
 
-    <!-- ==================== ABA 2: CRIPTO AO VIVO ==================== -->
+    <!-- ==================== ABA 3: CRIPTO AO VIVO ==================== -->
     <section class="tab-pane" id="tab-crypto">
       <div class="section-header">
         <div class="section-title">
@@ -177,7 +304,7 @@
       </div>
     </section>
 
-    <!-- ==================== ABA 3: FIIs & FIAGROS ==================== -->
+    <!-- ==================== ABA 4: FIIs & FIAGROS ==================== -->
     <section class="tab-pane" id="tab-fii">
       <div class="section-header">
         <div class="section-title">
@@ -186,7 +313,6 @@
         </div>
       </div>
 
-      <!-- Calculadora Efeito Bola de Neve -->
       <div class="calculator-box" id="snowball-section">
         <div class="calc-grid">
           <div class="calc-inputs">
@@ -273,7 +399,7 @@
       </div>
     </section>
 
-    <!-- ==================== ABA 4: AÇÕES B3 & BDRs EUA ==================== -->
+    <!-- ==================== ABA 5: AÇÕES B3 & BDRs EUA ==================== -->
     <section class="tab-pane" id="tab-stocks">
       <div class="section-header">
         <div class="section-title">
@@ -326,7 +452,7 @@
       </div>
     </section>
 
-    <!-- ==================== ABA 5: RENDA FIXA & TESOURO ==================== -->
+    <!-- ==================== ABA 6: RENDA FIXA & TESOURO ==================== -->
     <section class="tab-pane" id="tab-fixed">
       <div class="section-header">
         <div class="section-title">
@@ -335,27 +461,6 @@
         </div>
       </div>
 
-      <!-- Painel das Taxas Atuais de Mercado -->
-      <div class="portfolio-summary-bar" style="margin-bottom: 24px;">
-        <div class="summary-card">
-          <div class="title">Taxa Selic Meta</div>
-          <div class="value" style="color: var(--accent-green);">10.50% a.a.</div>
-        </div>
-        <div class="summary-card">
-          <div class="title">Taxa CDI</div>
-          <div class="value" style="color: var(--accent-blue);">10.40% a.a.</div>
-        </div>
-        <div class="summary-card">
-          <div class="title">Inflação (IPCA Estimado)</div>
-          <div class="value" style="color: var(--accent-amber);">4.10% a.a.</div>
-        </div>
-        <div class="summary-card">
-          <div class="title">Poupança Antiga/Nova</div>
-          <div class="value" style="color: var(--accent-red);">6.17% a.a.</div>
-        </div>
-      </div>
-
-      <!-- Simulador Comparativo de Juros Compostos -->
       <div class="calculator-box" style="margin-bottom: 30px;">
         <div style="margin-bottom: 20px;">
           <span class="badge badge-discount" style="margin-bottom: 8px;">Comparador Interativo</span>
@@ -425,12 +530,11 @@
         </div>
       </div>
 
-      <!-- Grid de Títulos -->
       <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px;">Títulos em Destaque no Tesouro e Renda Fixa</h3>
       <div class="opportunities-grid" id="fixed-income-grid"></div>
     </section>
 
-    <!-- ==================== ABA 6: CARTEIRA SIMULADA ==================== -->
+    <!-- ==================== ABA 7: CARTEIRA SIMULADA ==================== -->
     <section class="tab-pane" id="tab-simulator">
       <div class="section-header">
         <div class="section-title">
@@ -444,13 +548,11 @@
         </div>
       </div>
 
-      <!-- Barra de Alocação de Ativos -->
       <div class="summary-card" style="margin-bottom: 24px;">
         <div class="title" style="margin-bottom: 8px;">Distribuição de Ativos do seu Portfólio</div>
         <div id="portfolio-allocation-bar"></div>
       </div>
 
-      <!-- Cards de Resumo -->
       <div class="portfolio-summary-bar">
         <div class="summary-card">
           <div class="title">Saldo em Caixa (Disponível)</div>
@@ -470,7 +572,6 @@
         </div>
       </div>
 
-      <!-- Posições Abertas -->
       <div style="margin-bottom: 24px;">
         <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 14px;">Posições Atuais na Carteira</h3>
         <div class="table-container">
@@ -491,7 +592,6 @@
         </div>
       </div>
 
-      <!-- Histórico de Ordens -->
       <div>
         <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 14px;">Histórico de Operações</h3>
         <div class="table-container">
@@ -511,7 +611,7 @@
       </div>
     </section>
 
-    <!-- ==================== ABA 7: GUIA DO INVESTIDOR ==================== -->
+    <!-- ==================== ABA 8: GUIA DO INVESTIDOR ==================== -->
     <section class="tab-pane" id="tab-guide">
       <div class="section-header">
         <div class="section-title">
@@ -626,6 +726,7 @@
   <script src="js/stocks-radar.js"></script>
   <script src="js/fixed-income.js"></script>
   <script src="js/simulator.js"></script>
+  <script src="js/dashboard-charts.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Orquestrador Principal do Radar Alpha Multiativos
+// Orquestrador Principal do Radar Alpha Multiativos com Dashboard & Gráficos
 class App {
   constructor() {
     this.cryptoRadar = new CryptoRadar();
@@ -6,6 +6,7 @@ class App {
     this.stocksRadar = new StocksRadar();
     this.fixedIncome = new FixedIncomeRadar();
     this.simulator = new PortfolioSimulator();
+    this.dashboardCharts = new DashboardCharts();
     this.activeTradeModal = null;
   }
 
@@ -14,19 +15,21 @@ class App {
     this.setupModals();
     this.setupGlobalSearch();
 
-    // Inicializar os radares
+    // Inicializar os radares e o studio de gráficos
     await this.cryptoRadar.init();
     await this.fiiRadar.init();
     this.stocksRadar.init();
     this.fixedIncome.init();
     this.simulator.updateUI();
+    this.dashboardCharts.init();
 
-    // Loop periódico para manter carteira sincronizada
+    // Loop periódico para manter carteira e gráficos sincronizados
     setInterval(() => {
       this.simulator.updateUI();
+      this.dashboardCharts.updatePortfolioChart();
     }, 4000);
 
-    // Atualizar cards de oportunidades de tempos em tempos
+    // Atualizar cards de oportunidades periodicamente
     setInterval(() => {
       this.cryptoRadar.renderOpportunities();
     }, 6000);
@@ -52,6 +55,10 @@ class App {
 
         if (targetTab === 'tab-simulator') {
           this.simulator.updateUI();
+        }
+
+        if (targetTab === 'tab-dashboard') {
+          this.dashboardCharts.initChartJsAnalytics();
         }
       });
     });
@@ -111,6 +118,7 @@ class App {
       const success = this.simulator.buy(symbol, type, price, amountBrl);
       if (success) {
         modalOverlay.classList.remove('open');
+        this.dashboardCharts.updatePortfolioChart();
       }
     });
   }
@@ -167,7 +175,10 @@ class App {
       return;
     }
 
-    this.simulator.sell(symbol, qtyToSell);
+    const success = this.simulator.sell(symbol, qtyToSell);
+    if (success) {
+      this.dashboardCharts.updatePortfolioChart();
+    }
   }
 
   showToast(message, type = 'success') {
