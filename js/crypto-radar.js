@@ -1,9 +1,10 @@
-// Radar de Criptomoedas com conexão WebSocket e REST da Binance
+// Radar de Criptomoedas com Sinais de Compra, Venda e Links Diretos para a Área de Compra
 class CryptoRadar {
   constructor() {
     this.cryptoData = new Map();
     this.ws = null;
-    this.currentFilter = 'all';
+    this.currentFilter = 'all'; // 'all', 'buy', 'sell'
+    this.tableFilter = 'all';
     this.searchQuery = '';
     this.topPairs = [
       'BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT', 
@@ -11,7 +12,6 @@ class CryptoRadar {
       'SUIUSDT', 'PEPEUSDT', 'SHIBUSDT', 'DOTUSDT', 'INJUSDT',
       'RENDERUSDT', 'FETUSDT', 'TIAUSDT', 'ARBUSDT', 'OPUSDT'
     ];
-    this.onPriceUpdate = null;
   }
 
   async init() {
@@ -51,7 +51,7 @@ class CryptoRadar {
             const openPrice = parseFloat(t.o);
             const highPrice = parseFloat(t.h);
             const lowPrice = parseFloat(t.l);
-            const volume = parseFloat(t.q); // quote volume in USDT
+            const volume = parseFloat(t.q);
             const priceChangePercent = openPrice > 0 ? ((lastPrice - openPrice) / openPrice) * 100 : 0;
 
             const prevPrice = existing.lastPrice || lastPrice;
@@ -114,48 +114,81 @@ class CryptoRadar {
 
   getOpportunities() {
     const list = Array.from(this.cryptoData.values())
-      .filter(item => item.quoteVolume > 5000000); // Filtra moedas com liquidez mínima de $5M
+      .filter(item => item.quoteVolume > 5000000); // Liquidez mínima de $5M
 
     const opportunities = [];
 
     list.forEach(item => {
       const nearHigh = item.highPrice > 0 && (item.lastPrice >= item.highPrice * 0.985);
-      const isSpike = item.priceChangePercent >= 5.0 && item.quoteVolume > 15000000;
-      const isOversold = item.priceChangePercent <= -6.0;
+      const nearLow = item.lowPrice > 0 && (item.lastPrice <= item.lowPrice * 1.02);
+      const isSpikeBuy = item.priceChangePercent >= 5.0 && item.quoteVolume > 15000000;
+      const isOversoldBuy = item.priceChangePercent <= -6.0;
+      const isOverboughtSell = item.priceChangePercent >= 12.0; // Alta exagerada -> risco de correção
+      const isBreakdownSell = item.priceChangePercent <= -8.5 && nearLow; // Perda de suporte
 
-      let score = 0;
-      let tags = [];
-      let thesis = '';
-
-      if (isSpike) {
-        score += 85;
-        tags.push({ text: 'Volume Spike 🔥', class: 'badge-spike' });
-        thesis = `Fluxo comprador forte com volume negociado superior a US$ ${(item.quoteVolume / 1000000).toFixed(1)}M nas últimas 24h.`;
-      }
-
-      if (nearHigh && item.priceChangePercent > 3) {
-        score += 75;
-        tags.push({ text: 'Rompimento 🚀', class: 'badge-breakout' });
-        thesis = thesis || `Testando a máxima de 24h (${this.formatCurrency(item.highPrice)}). Pressão compradora indicando possível continuidade.`;
-      }
-
-      if (isOversold) {
-        score += 70;
-        tags.push({ text: 'Sobrevendido 💎', class: 'badge-discount' });
-        thesis = `Queda acentuada de ${item.priceChangePercent.toFixed(1)}% nas últimas 24h. Oportunidade para avaliar repique técnico ou compra em suporte.`;
-      }
-
-      if (tags.length > 0) {
+      // SINAL DE VENDA / REALIZAÇÃO
+      if (isOverboughtSell) {
         opportunities.push({
           ...item,
-          score,
-          tags,
-          thesis
+          signalType: 'sell',
+          score: 95,
+          tags: [
+            { text: '🔴 SINAL DE VENDA / REALIZAÇÃO', class: 'badge-signal-sell' },
+            { text: 'Sobrecomprado ⚠️', class: 'badge-spike' }
+          ],
+          thesis: `Alta expressiva de +${item.priceChangePercent.toFixed(1)}% nas 24h. O ativo atingiu níveis de euforia (sobrecompra). Momento técnico propício para realizar lucros parciais antes de uma retração.`
+        });
+      } else if (isBreakdownSell) {
+        opportunities.push({
+          ...item,
+          signalType: 'sell',
+          score: 85,
+          tags: [
+            { text: '🔴 ALERTA DE RISCO / STOP', class: 'badge-signal-sell' },
+            { text: 'Perda de Suporte 🛑', class: 'badge-spike' }
+          ],
+          thesis: `Queda brusca de ${item.priceChangePercent.toFixed(1)}% colada na mínima do dia. Pressão vendedora intensa — momento de avaliar stop loss de proteção de patrimônio.`
+        });
+      }
+      
+      // SINAL DE COMPRA / OPORTUNIDADE
+      else if (isOversoldBuy) {
+        opportunities.push({
+          ...item,
+          signalType: 'buy',
+          score: 88,
+          tags: [
+            { text: '🟢 SINAL DE COMPRA', class: 'badge-signal-buy' },
+            { text: 'Sobrevendido 💎', class: 'badge-discount' }
+          ],
+          thesis: `Queda acentuada de ${item.priceChangePercent.toFixed(1)}% nas 24h. Indicadores em nível de sobrevenda extrema. Excelente janela para compras parciais visando repique técnico.`
+        });
+      } else if (isSpikeBuy) {
+        opportunities.push({
+          ...item,
+          signalType: 'buy',
+          score: 86,
+          tags: [
+            { text: '🟢 SINAL DE COMPRA', class: 'badge-signal-buy' },
+            { text: 'Volume Spike 🔥', class: 'badge-spike' }
+          ],
+          thesis: `Entrada maciça de capital com volume superior a US$ ${(item.quoteVolume / 1000000).toFixed(1)}M. Força compradora demonstrando ímpeto de alta.`
+        });
+      } else if (nearHigh && item.priceChangePercent > 3) {
+        opportunities.push({
+          ...item,
+          signalType: 'buy',
+          score: 75,
+          tags: [
+            { text: '🟢 SINAL DE COMPRA', class: 'badge-signal-buy' },
+            { text: 'Rompimento 🚀', class: 'badge-breakout' }
+          ],
+          thesis: `Ativo rompendo a resistência das últimas 24h (${this.formatCurrency(item.highPrice)}). Fluxo comprador dominante.`
         });
       }
     });
 
-    return opportunities.sort((a, b) => b.score - a.score).slice(0, 9);
+    return opportunities.sort((a, b) => b.score - a.score);
   }
 
   render() {
@@ -168,23 +201,33 @@ class CryptoRadar {
     const container = document.getElementById('crypto-opportunities-container');
     if (!container) return;
 
-    const opps = this.getOpportunities();
+    let opps = this.getOpportunities();
+
+    if (this.currentFilter === 'buy') {
+      opps = opps.filter(o => o.signalType === 'buy');
+    } else if (this.currentFilter === 'sell') {
+      opps = opps.filter(o => o.signalType === 'sell');
+    }
+
     if (opps.length === 0) {
       container.innerHTML = `
         <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-dim);">
-          Carregando oportunidades da Binance em tempo real...
+          Nenhuma oportunidade detectada no filtro selecionado no momento.
         </div>`;
       return;
     }
 
-    container.innerHTML = opps.map(coin => {
+    container.innerHTML = opps.slice(0, 9).map(coin => {
       const isPositive = coin.priceChangePercent >= 0;
+      const isSell = coin.signalType === 'sell';
+      const binanceTradeUrl = `https://www.binance.com/pt-BR/trade/${coin.name}_USDT?type=spot`;
+
       return `
-        <div class="opportunity-card crypto-card" data-symbol="${coin.symbol}">
+        <div class="opportunity-card ${isSell ? 'signal-sell' : 'signal-buy'}" data-symbol="${coin.symbol}">
           <div>
             <div class="card-top">
               <div class="asset-identity">
-                <div class="asset-icon" style="color: #00f59b; border-color: rgba(0, 245, 155, 0.2);">
+                <div class="asset-icon" style="color: ${isSell ? '#ff4d6d' : '#00f59b'}; border-color: ${isSell ? 'rgba(255, 77, 109, 0.3)' : 'rgba(0, 245, 155, 0.3)'};">
                   ${coin.name.substring(0, 3)}
                 </div>
                 <div class="asset-names">
@@ -192,7 +235,7 @@ class CryptoRadar {
                   <span>${coin.symbol} • Binance</span>
                 </div>
               </div>
-              <div class="tags-cluster">
+              <div class="tags-cluster" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
                 ${coin.tags.map(t => `<span class="badge ${t.class}">${t.text}</span>`).join('')}
               </div>
             </div>
@@ -215,18 +258,18 @@ class CryptoRadar {
               </div>
             </div>
 
-            <div class="thesis-note">
-              <strong>Tese do Garimpo:</strong> ${coin.thesis}
+            <div class="thesis-note ${isSell ? 'alert-sell' : ''}">
+              <strong>${isSell ? '⚠️ Tese de Venda / Risco:' : '💡 Tese de Compra:'}</strong> ${coin.thesis}
             </div>
           </div>
 
           <div class="card-actions">
-            <button class="btn btn-primary btn-sm" onclick="window.app.openTradeModal('${coin.symbol}', 'crypto', ${coin.lastPrice})">
-              Simular Compra
-            </button>
-            <a href="https://www.binance.com/pt-BR/trade/${coin.name}_USDT" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
-              Ver Gráfico ↗
+            <a href="${binanceTradeUrl}" target="_blank" rel="noopener" class="btn ${isSell ? 'btn-danger' : 'btn-broker'} btn-sm" title="Abrir direto no livro de ofertas da Binance">
+              🛒 Ir para Compra na Binance ↗
             </a>
+            <button class="btn btn-outline btn-sm" onclick="window.app.openTradeModal('${coin.symbol}', 'crypto', ${coin.lastPrice})">
+              💼 Simular na Carteira
+            </button>
           </div>
         </div>
       `;
@@ -246,19 +289,20 @@ class CryptoRadar {
         return this.topPairs.includes(item.symbol) || item.quoteVolume > 15000000;
       });
 
-    if (this.currentFilter === 'gainers') {
+    if (this.tableFilter === 'gainers') {
       items = items.sort((a, b) => b.priceChangePercent - a.priceChangePercent);
-    } else if (this.currentFilter === 'losers') {
+    } else if (this.tableFilter === 'losers') {
       items = items.sort((a, b) => a.priceChangePercent - b.priceChangePercent);
-    } else if (this.currentFilter === 'volume') {
+    } else if (this.tableFilter === 'volume') {
       items = items.sort((a, b) => b.quoteVolume - a.quoteVolume);
     } else {
-      // Default: top pairs first, then volume
       items = items.sort((a, b) => b.quoteVolume - a.quoteVolume);
     }
 
     tbody.innerHTML = items.slice(0, 30).map((coin, idx) => {
       const isPositive = coin.priceChangePercent >= 0;
+      const binanceTradeUrl = `https://www.binance.com/pt-BR/trade/${coin.name}_USDT?type=spot`;
+
       return `
         <tr data-symbol="${coin.symbol}">
           <td style="color: var(--text-dim); font-size: 0.78rem;">#${idx + 1}</td>
@@ -278,9 +322,14 @@ class CryptoRadar {
           <td class="mono" style="color: var(--text-muted);">$${this.formatPrice(coin.lowPrice)}</td>
           <td class="mono">$${this.formatVolume(coin.quoteVolume)}</td>
           <td>
-            <button class="btn btn-outline btn-sm" onclick="window.app.openTradeModal('${coin.symbol}', 'crypto', ${coin.lastPrice})">
-              Comprar
-            </button>
+            <div style="display: flex; gap: 6px;">
+              <a href="${binanceTradeUrl}" target="_blank" rel="noopener" class="btn btn-broker btn-sm" title="Ir para a área de compra na corretora">
+                🛒 Comprar
+              </a>
+              <button class="btn btn-outline btn-sm" onclick="window.app.openTradeModal('${coin.symbol}', 'crypto', ${coin.lastPrice})" title="Testar na carteira simulada">
+                💼 Simular
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -297,7 +346,7 @@ class CryptoRadar {
       if (!coin) return '';
       const isPositive = coin.priceChangePercent >= 0;
       return `
-        <div class="ticker-chip" onclick="window.app.openTradeModal('${coin.symbol}', 'crypto', ${coin.lastPrice})">
+        <div class="ticker-chip" onclick="window.open('https://www.binance.com/pt-BR/trade/${coin.name}_USDT?type=spot', '_blank')">
           <strong>${coin.name}</strong>
           <span>$${this.formatPrice(coin.lastPrice)}</span>
           <span style="color: ${isPositive ? 'var(--accent-green)' : 'var(--accent-red)'}">
@@ -307,12 +356,10 @@ class CryptoRadar {
       `;
     }).join('');
 
-    // Duplicate content for smooth marquee infinite loop
     track.innerHTML = html + html;
   }
 
   updateDOMPrices() {
-    // Atualiza elementos específicos sem remontar a tabela inteira para máxima performance
     const elements = document.querySelectorAll('.live-price');
     elements.forEach(el => {
       const sym = el.getAttribute('data-sym');
@@ -324,7 +371,7 @@ class CryptoRadar {
           const parentRow = el.closest('tr') || el.closest('.opportunity-card');
           if (parentRow) {
             parentRow.classList.remove('flash-up', 'flash-down');
-            void parentRow.offsetWidth; // trigger reflow
+            void parentRow.offsetWidth;
             parentRow.classList.add(coin.trend === 'up' ? 'flash-up' : 'flash-down');
           }
         }
@@ -352,8 +399,13 @@ class CryptoRadar {
     return val.toFixed(2);
   }
 
-  setFilter(filter) {
+  setSignalFilter(filter) {
     this.currentFilter = filter;
+    this.renderOpportunities();
+  }
+
+  setTableFilter(filter) {
+    this.tableFilter = filter;
     this.renderCryptoTable();
   }
 

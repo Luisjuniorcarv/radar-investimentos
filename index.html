@@ -22,7 +22,6 @@
       AO VIVO • BINANCE
     </div>
     <div class="ticker-track" id="live-ticker-track">
-      <!-- Chips gerados dinamicamente via JS -->
       <div class="ticker-chip">Conectando aos feeds de mercado...</div>
     </div>
   </div>
@@ -76,10 +75,29 @@
 
     <!-- ==================== ABA 1: RADAR DE OPORTUNIDADES ==================== -->
     <section class="tab-pane active" id="tab-overview">
+      
+      <!-- Filtro Geral de Sinais (Compra vs Venda) -->
+      <div class="filter-bar" style="margin-bottom: 24px;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+          <span>🔔</span> Filtrar Alertas de Mercado:
+        </span>
+        <div class="filter-tags">
+          <button class="filter-tag active" onclick="window.app.setGlobalSignalFilter('all', this)">
+            ⚡ Todos os Sinais
+          </button>
+          <button class="filter-tag tag-buy" onclick="window.app.setGlobalSignalFilter('buy', this)">
+            🟢 Apenas Sinais de COMPRA
+          </button>
+          <button class="filter-tag tag-sell" onclick="window.app.setGlobalSignalFilter('sell', this)">
+            🔴 Apenas Sinais de VENDA / REALIZAÇÃO
+          </button>
+        </div>
+      </div>
+
       <div class="section-header">
         <div class="section-title">
-          <h2><span>🎯</span> Oportunidades Garimpadas em Cripto</h2>
-          <p>Algoritmo de triagem ao vivo: detecta surtos de volume (Volume Spikes), sobrevenda (RSI baixo) e rompimentos de máximas.</p>
+          <h2><span>🪙</span> Alertas de Oportunidades em Cripto</h2>
+          <p>Sinais automatizados: <strong>🟢 Compra</strong> (Volume Spikes, sobrevenda) e <strong>🔴 Venda</strong> (sobrecompra esticada, perda de suporte).</p>
         </div>
       </div>
 
@@ -89,8 +107,8 @@
 
       <div class="section-header" style="margin-top: 40px;">
         <div class="section-title">
-          <h2><span>💎</span> Oportunidades Garimpadas em FIIs (B3)</h2>
-          <p>Filtro de valor patrimonial: ativos com P/VP com desconto, fluxo de dividendos consistente acima da média e alta liquidez.</p>
+          <h2><span>🏢</span> Alertas de Oportunidades em FIIs (B3)</h2>
+          <p>Sinais de valor patrimonial: <strong>🟢 Compra</strong> (P/VP descontado, alto DY) e <strong>🔴 Venda</strong> (ágio excessivo acima do valor justo).</p>
         </div>
       </div>
 
@@ -104,7 +122,7 @@
       <div class="section-header">
         <div class="section-title">
           <h2><span>🪙</span> Mercado de Criptomoedas ao Vivo</h2>
-          <p>Cotações em streaming via WebSocket oficial Binance, atualizadas segundo a segundo.</p>
+          <p>Cotações em streaming via WebSocket oficial Binance com link direto para compra na corretora.</p>
         </div>
       </div>
 
@@ -115,16 +133,16 @@
           <input type="text" id="crypto-search-input" placeholder="Buscar criptomoeda (Ex: BTC, SOL, ETH, DOGE)...">
         </div>
         <div class="filter-tags">
-          <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setFilter('all')">
+          <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setTableFilter('all')">
             Todos
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setFilter('gainers')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setTableFilter('gainers')">
             🚀 Maiores Altas (Gainers)
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setFilter('losers')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setTableFilter('losers')">
             📉 Maiores Quedas (Losers)
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setFilter('volume')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.cryptoRadar.setTableFilter('volume')">
             🔥 Maior Volume
           </button>
         </div>
@@ -142,7 +160,7 @@
               <th>Máxima 24h</th>
               <th>Mínima 24h</th>
               <th>Volume 24h</th>
-              <th>Ação</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody id="crypto-table-body">
@@ -161,7 +179,7 @@
       <div class="section-header">
         <div class="section-title">
           <h2><span>🏢</span> Fundos Imobiliários da B3</h2>
-          <p>Métricas fundamentais de Tijolo, Papel e Shoppings com foco em geração de renda passiva isenta de IR.</p>
+          <p>Métricas fundamentais de Tijolo, Papel e Shoppings com links de negociação e calculadora bola de neve.</p>
         </div>
       </div>
 
@@ -217,19 +235,19 @@
           <input type="text" id="fii-search-input" placeholder="Buscar FII (Ex: MXRF11, HGLG11, XPML11)...">
         </div>
         <div class="filter-tags">
-          <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setFilter('all')">
+          <button class="filter-tag active" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('all')">
             Todos
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setFilter('pvp')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('pvp')">
             🏷️ Menor P/VP (Mais Descontados)
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setFilter('dy')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('dy')">
             💰 Maior Dividend Yield
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setFilter('tijolo')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('tijolo')">
             🏭 Tijolo (Imóveis Físicos)
           </button>
-          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setFilter('papel')">
+          <button class="filter-tag" onclick="this.parentElement.querySelectorAll('.filter-tag').forEach(b=>b.classList.remove('active')); this.classList.add('active'); window.app.fiiRadar.setTableFilter('papel')">
             📄 Papel (CRIs e Títulos)
           </button>
         </div>
@@ -248,7 +266,7 @@
               <th>DY 12M</th>
               <th>Último Provento</th>
               <th>Liquidez Diária</th>
-              <th>Ação</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody id="fii-table-body">
@@ -348,14 +366,24 @@
 
       <div class="dictionary-grid">
         <div class="dict-card">
+          <div class="dict-term">🟢 Sinais de Compra vs 🔴 Venda</div>
+          <div class="dict-meaning">
+            Como saber a hora de comprar e a hora de realizar lucro?
+          </div>
+          <div class="dict-example">
+            • <strong>Compra:</strong> Quando o ativo está barato/descontado (P/VP < 1.00 ou RSI < 30) e começa a entrar volume comprador.<br>
+            • <strong>Venda/Realização:</strong> Quando o ativo subiu demais e ficou sobrecomprado (P/VP > 1.05 ou esticada de +15%). É a hora de colocar o lucro no bolso!
+          </div>
+        </div>
+
+        <div class="dict-card">
           <div class="dict-term">🏷️ P/VP (Preço sobre Valor Patrimonial)</div>
           <div class="dict-meaning">
             Indica quanto você está pagando em relação ao valor contábil dos imóveis ou títulos do fundo.
           </div>
           <div class="dict-example">
-            • <strong>P/VP < 1.00:</strong> O fundo está com desconto (você paga R$ 0,90 por algo que vale R$ 1,00).<br>
-            • <strong>P/VP = 1.00:</strong> Preço justo.<br>
-            • <strong>P/VP > 1.00:</strong> Fundo negociando com ágio (mais caro).
+            • <strong>P/VP < 1.00:</strong> Desconto patrimonial (oportunidade de compra).<br>
+            • <strong>P/VP > 1.05:</strong> Negociando com ágio (alerta de realização de lucro).
           </div>
         </div>
 
@@ -386,16 +414,6 @@
           </div>
           <div class="dict-example">
             Sinaliza que grandes investidores ou instituições ("baleias") entraram no ativo, gerando fortes movimentações de preço.
-          </div>
-        </div>
-
-        <div class="dict-card">
-          <div class="dict-term">💎 Sobrevendido (RSI / IFR Baixo)</div>
-          <div class="dict-meaning">
-            Quando um ativo sofreu uma sequência de vendas exagerada e seu preço caiu rápido demais.
-          </div>
-          <div class="dict-example">
-            Historicamente, ativos sobrevendidos têm alta probabilidade de repique de alta (recuperação técnica de curto prazo).
           </div>
         </div>
 

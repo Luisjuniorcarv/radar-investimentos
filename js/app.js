@@ -54,6 +54,16 @@ class App {
     });
   }
 
+  setGlobalSignalFilter(filter, buttonElement) {
+    if (buttonElement) {
+      const parent = buttonElement.parentElement;
+      parent.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+      buttonElement.classList.add('active');
+    }
+    this.cryptoRadar.setSignalFilter(filter);
+    this.fiiRadar.setSignalFilter(filter);
+  }
+
   setupGlobalSearch() {
     const cryptoSearch = document.getElementById('crypto-search-input');
     cryptoSearch?.addEventListener('input', (e) => {

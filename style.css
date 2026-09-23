@@ -407,6 +407,20 @@ main.main-content {
   box-shadow: 0 0 10px var(--accent-blue-glow);
 }
 
+.filter-tag.tag-buy.active {
+  background: rgba(0, 245, 155, 0.18);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  box-shadow: 0 0 12px var(--accent-green-glow);
+}
+
+.filter-tag.tag-sell.active {
+  background: rgba(255, 77, 109, 0.18);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  box-shadow: 0 0 12px var(--accent-red-glow);
+}
+
 /* Opportunity Cards Grid */
 .opportunities-grid {
   display: grid;
@@ -438,27 +452,33 @@ main.main-content {
   box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 245, 155, 0.12);
 }
 
-.opportunity-card.gold-opportunity {
-  border-color: rgba(255, 184, 0, 0.4);
-}
-.opportunity-card.gold-opportunity::before {
+.opportunity-card.signal-buy::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
+  background: linear-gradient(90deg, #00d2ff, #00f59b);
+}
+
+.opportunity-card.signal-sell {
+  border-color: rgba(255, 77, 109, 0.35);
+}
+
+.opportunity-card.signal-sell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
   background: linear-gradient(90deg, #ffb800, #ff4d6d);
 }
 
-.opportunity-card.crypto-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #00d2ff, #00f59b);
+.opportunity-card.signal-sell:hover {
+  border-color: var(--accent-red);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 77, 109, 0.2);
 }
 
 .card-top {
@@ -509,6 +529,20 @@ main.main-content {
   border-radius: 6px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+.badge-signal-buy {
+  background: rgba(0, 245, 155, 0.18);
+  color: var(--accent-green);
+  border: 1px solid rgba(0, 245, 155, 0.4);
+  box-shadow: 0 0 10px rgba(0, 245, 155, 0.15);
+}
+
+.badge-signal-sell {
+  background: rgba(255, 77, 109, 0.18);
+  color: var(--accent-red);
+  border: 1px solid rgba(255, 77, 109, 0.4);
+  box-shadow: 0 0 10px rgba(255, 77, 109, 0.15);
 }
 
 .badge-spike {
@@ -609,10 +643,15 @@ main.main-content {
   color: var(--text-muted);
   line-height: 1.45;
   background: rgba(255, 255, 255, 0.02);
-  border-left: 3px solid var(--accent-blue);
+  border-left: 3px solid var(--accent-green);
   padding: 8px 12px;
   border-radius: 0 6px 6px 0;
   margin-bottom: 16px;
+}
+
+.thesis-note.alert-sell {
+  border-left-color: var(--accent-red);
+  background: rgba(255, 77, 109, 0.04);
 }
 
 .thesis-note.alert-gold {
@@ -622,7 +661,8 @@ main.main-content {
 /* Card Actions */
 .card-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -633,7 +673,7 @@ main.main-content {
   font-family: var(--font-family);
   font-size: 0.82rem;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -652,6 +692,17 @@ main.main-content {
   transform: translateY(-1px);
 }
 
+.btn-broker {
+  background: linear-gradient(135deg, #ffb800, #ff9100);
+  color: #1a0f00;
+  font-weight: 700;
+}
+
+.btn-broker:hover {
+  box-shadow: 0 4px 15px rgba(255, 184, 0, 0.4);
+  transform: translateY(-1px);
+}
+
 .btn-outline {
   background: transparent;
   color: var(--text-muted);
@@ -664,9 +715,22 @@ main.main-content {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+.btn-danger {
+  background: rgba(255, 77, 109, 0.15);
+  border: 1px solid rgba(255, 77, 109, 0.35);
+  color: var(--accent-red);
+  font-weight: 700;
+}
+
+.btn-danger:hover {
+  background: var(--accent-red);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+}
+
 .btn-sm {
-  padding: 6px 12px;
-  font-size: 0.78rem;
+  padding: 6px 11px;
+  font-size: 0.76rem;
 }
 
 /* Live Market Table View */
@@ -1000,5 +1064,11 @@ table.market-table tr:hover td {
   }
   .opportunities-grid {
     grid-template-columns: 1fr;
+  }
+  .card-actions {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
   }
 }

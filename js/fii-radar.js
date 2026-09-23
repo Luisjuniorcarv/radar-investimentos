@@ -1,4 +1,4 @@
-// Radar de Fundos Imobiliários (FIIs da B3) com métricas de P/VP, Dividend Yield e Calculadora Bola de Neve
+// Radar de Fundos Imobiliários com Sinais de Compra, Venda e Links Diretos para Negociação
 class FiiRadar {
   constructor() {
     this.fiiList = [
@@ -62,7 +62,7 @@ class FiiRadar {
         name: 'Kinea Rendimentos Imobiliários',
         segment: 'Papel (CRI / CDI+)',
         price: 103.10,
-        pvp: 1.01,
+        pvp: 1.04,
         dy12m: 13.2,
         lastDividend: 1.12,
         liquidity: 'R$ 9.8M/dia',
@@ -161,7 +161,7 @@ class FiiRadar {
         name: 'CSHG Renda Urbana',
         segment: 'Tijolo (Varejo / Educacional)',
         price: 122.10,
-        pvp: 0.98,
+        pvp: 1.05,
         dy12m: 9.7,
         lastDividend: 0.98,
         liquidity: 'R$ 4.7M/dia',
@@ -169,7 +169,8 @@ class FiiRadar {
       }
     ];
 
-    this.currentFilter = 'all';
+    this.currentFilter = 'all'; // 'all', 'buy', 'sell'
+    this.tableFilter = 'all';
     this.searchQuery = '';
   }
 
@@ -180,7 +181,6 @@ class FiiRadar {
   }
 
   async updateLiveQuotes() {
-    // Tenta atualizar cotações de alguns FIIs em lote via Yahoo Finance Query pública
     const topTickers = ['MXRF11.SA', 'HGLG11.SA', 'XPML11.SA', 'BTLG11.SA'];
     for (const sym of topTickers) {
       try {
@@ -196,9 +196,7 @@ class FiiRadar {
             }
           }
         }
-      } catch (e) {
-        // silencioso para não poluir console
-      }
+      } catch (e) {}
     }
     this.render();
   }
@@ -208,31 +206,58 @@ class FiiRadar {
       let score = 0;
       let tags = [];
       let thesis = '';
+      let signalType = 'buy';
 
+      const isOverpriced = fii.pvp >= 1.03;
+      const isLowYield = fii.dy12m < 9.0 && fii.pvp >= 0.98;
       const isDeepDiscount = fii.pvp <= 0.92;
       const isDiscount = fii.pvp < 1.00;
       const isHighYield = fii.dy12m >= 11.5;
 
-      if (isDiscount && isHighYield) {
-        score += 90;
+      // SINAL DE VENDA / REALIZAÇÃO DE LUCRO
+      if (isOverpriced) {
+        signalType = 'sell';
+        score = 88;
+        tags.push({ text: '🔴 SINAL DE VENDA / ÁGIO', class: 'badge-signal-sell' });
+        tags.push({ text: `P/VP Caro (${fii.pvp.toFixed(2)}) ⚠️`, class: 'badge-spike' });
+        thesis = `O fundo está cotado com ágio acima do patrimônio líquido real (P/VP ${fii.pvp.toFixed(2)}). Excelente oportunidade para realizar lucro de capital e girar a carteira para FIIs com desconto.`;
+      } else if (isLowYield) {
+        signalType = 'sell';
+        score = 72;
+        tags.push({ text: '🔴 ALERTA DE ATENÇÃO', class: 'badge-signal-sell' });
+        tags.push({ text: 'Yield Comprimido 📉', class: 'badge-spike' });
+        thesis = `Dividend Yield de ${fii.dy12m.toFixed(1)}% está comprimido em relação às taxas atuais de juros. Avaliar realocação para ativos mais rentáveis.`;
+      }
+      
+      // SINAL DE COMPRA
+      else if (isDiscount && isHighYield) {
+        signalType = 'buy';
+        score = 92;
+        tags.push({ text: '🟢 SINAL DE COMPRA FORTE', class: 'badge-signal-buy' });
         tags.push({ text: 'Oportunidade de Ouro 🌟', class: 'badge-yield' });
-        thesis = `Combinação excelente de desconto patrimonial (P/VP ${fii.pvp.toFixed(2)}) com dividendos expressivos de ${fii.dy12m.toFixed(1)}% ao ano.`;
+        thesis = `Combinação ideal: patrimônio com desconto (P/VP ${fii.pvp.toFixed(2)}) e renda passiva de ${fii.dy12m.toFixed(1)}% ao ano isenta de IR.`;
       } else if (isDeepDiscount) {
-        score += 80;
+        signalType = 'buy';
+        score = 84;
+        tags.push({ text: '🟢 SINAL DE COMPRA', class: 'badge-signal-buy' });
         tags.push({ text: 'Super Desconto 💎', class: 'badge-discount' });
-        thesis = `Negociando com ${(100 - (fii.pvp * 100)).toFixed(0)}% de desconto sobre o valor real do patrimônio líquido do fundo.`;
+        thesis = `Negociando com ${(100 - (fii.pvp * 100)).toFixed(0)}% de desconto sobre o valor dos imóveis. Forte margem de segurança patrimonial.`;
       } else if (isHighYield) {
-        score += 75;
+        signalType = 'buy';
+        score = 78;
+        tags.push({ text: '🟢 SINAL DE COMPRA', class: 'badge-signal-buy' });
         tags.push({ text: 'Alto Dividend Yield 💰', class: 'badge-yield' });
-        thesis = `Dividendos de ${fii.dy12m.toFixed(1)}% a.a., superando amplamente o CDI e a poupança com isenção de IR nos rendimentos.`;
+        thesis = `Dividendos consistentes de ${fii.dy12m.toFixed(1)}% a.a., proporcionando fluxo de caixa mensal imediato.`;
       } else {
-        score += 50;
+        signalType = 'buy';
+        score = 50;
         tags.push({ text: 'Preço Justo ⚖️', class: 'badge-breakout' });
-        thesis = `Ativo de alta qualidade e liquidez com rentabilidade e valuation equilibrados.`;
+        thesis = `FII de primeira linha com valuation equilibrado para composição de carteira.`;
       }
 
       return {
         ...fii,
+        signalType,
         score,
         tags,
         thesis
@@ -250,16 +275,24 @@ class FiiRadar {
     const container = document.getElementById('fii-opportunities-container');
     if (!container) return;
 
-    const opps = this.getOpportunities().slice(0, 6);
+    let opps = this.getOpportunities();
 
-    container.innerHTML = opps.map(fii => {
-      const isGold = fii.score >= 85;
+    if (this.currentFilter === 'buy') {
+      opps = opps.filter(o => o.signalType === 'buy');
+    } else if (this.currentFilter === 'sell') {
+      opps = opps.filter(o => o.signalType === 'sell');
+    }
+
+    container.innerHTML = opps.slice(0, 6).map(fii => {
+      const isSell = fii.signalType === 'sell';
+      const statusInvestUrl = `https://statusinvest.com.br/fundos-imobiliarios/${fii.ticker.toLowerCase()}`;
+
       return `
-        <div class="opportunity-card ${isGold ? 'gold-opportunity' : ''}">
+        <div class="opportunity-card ${isSell ? 'signal-sell' : 'signal-buy'}">
           <div>
             <div class="card-top">
               <div class="asset-identity">
-                <div class="asset-icon" style="color: #ffb800; border-color: rgba(255, 184, 0, 0.2);">
+                <div class="asset-icon" style="color: ${isSell ? '#ff4d6d' : '#ffb800'}; border-color: ${isSell ? 'rgba(255, 77, 109, 0.3)' : 'rgba(255, 184, 0, 0.2)'};">
                   🏢
                 </div>
                 <div class="asset-names">
@@ -267,14 +300,14 @@ class FiiRadar {
                   <span>${fii.name} • ${fii.segment}</span>
                 </div>
               </div>
-              <div class="tags-cluster">
+              <div class="tags-cluster" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
                 ${fii.tags.map(t => `<span class="badge ${t.class}">${t.text}</span>`).join('')}
               </div>
             </div>
 
             <div class="price-row">
               <div class="price-main">R$ ${fii.price.toFixed(2)}</div>
-              <div class="price-change positive">
+              <div class="price-change ${isSell ? 'negative' : 'positive'}">
                 DY 12M: ${fii.dy12m.toFixed(1)}%
               </div>
             </div>
@@ -282,8 +315,8 @@ class FiiRadar {
             <div class="metrics-grid">
               <div class="metric-item">
                 <span class="label">P/VP (Patrimônio)</span>
-                <span class="value" style="color: ${fii.pvp < 1 ? 'var(--accent-green)' : 'var(--text-main)'}">
-                  ${fii.pvp.toFixed(2)} ${fii.pvp < 1 ? `(${(100 - fii.pvp * 100).toFixed(0)}% desc.)` : ''}
+                <span class="value" style="color: ${fii.pvp < 1 ? 'var(--accent-green)' : (fii.pvp > 1.02 ? 'var(--accent-red)' : 'var(--text-main)')}">
+                  ${fii.pvp.toFixed(2)} ${fii.pvp < 1 ? `(${(100 - fii.pvp * 100).toFixed(0)}% desc.)` : (fii.pvp > 1 ? `(+${((fii.pvp - 1) * 100).toFixed(0)}% ágio)` : '')}
                 </span>
               </div>
               <div class="metric-item">
@@ -292,17 +325,20 @@ class FiiRadar {
               </div>
             </div>
 
-            <div class="thesis-note ${isGold ? 'alert-gold' : ''}">
-              <strong>Tese do Garimpo:</strong> ${fii.thesis}
+            <div class="thesis-note ${isSell ? 'alert-sell' : ''}">
+              <strong>${isSell ? '⚠️ Tese de Venda / Realização:' : '💡 Tese do Garimpo:'}</strong> ${fii.thesis}
             </div>
           </div>
 
           <div class="card-actions">
-            <button class="btn btn-primary btn-sm" onclick="window.app.openTradeModal('${fii.ticker}', 'fii', ${fii.price})">
-              Simular Compra
+            <a href="${statusInvestUrl}" target="_blank" rel="noopener" class="btn ${isSell ? 'btn-danger' : 'btn-broker'} btn-sm" title="Abrir página oficial do fundo e dados de negociação">
+              🛒 Ir para Área de Compra (Status Invest) ↗
+            </a>
+            <button class="btn btn-outline btn-sm" onclick="window.app.openTradeModal('${fii.ticker}', 'fii', ${fii.price})" title="Simular na sua carteira virtual">
+              💼 Simular
             </button>
             <button class="btn btn-outline btn-sm" onclick="window.app.fiiRadar.selectForCalculator('${fii.ticker}')">
-              Calcular Renda 🧮
+              🧮 Bola de Neve
             </button>
           </div>
         </div>
@@ -321,18 +357,20 @@ class FiiRadar {
       items = items.filter(f => f.ticker.includes(q) || f.name.toUpperCase().includes(q) || f.segment.toUpperCase().includes(q));
     }
 
-    if (this.currentFilter === 'pvp') {
-      items = items.sort((a, b) => a.pvp - b.pvp); // Mais barato primeiro
-    } else if (this.currentFilter === 'dy') {
-      items = items.sort((a, b) => b.dy12m - a.dy12m); // Maior dividendo primeiro
-    } else if (this.currentFilter === 'tijolo') {
+    if (this.tableFilter === 'pvp') {
+      items = items.sort((a, b) => a.pvp - b.pvp);
+    } else if (this.tableFilter === 'dy') {
+      items = items.sort((a, b) => b.dy12m - a.dy12m);
+    } else if (this.tableFilter === 'tijolo') {
       items = items.filter(f => f.segment.includes('Tijolo'));
-    } else if (this.currentFilter === 'papel') {
+    } else if (this.tableFilter === 'papel') {
       items = items.filter(f => f.segment.includes('Papel'));
     }
 
     tbody.innerHTML = items.map((fii, idx) => {
-      const pvpClass = fii.pvp < 0.95 ? 'color: var(--accent-green); font-weight: 700;' : (fii.pvp > 1.05 ? 'color: var(--accent-red);' : '');
+      const pvpClass = fii.pvp < 0.95 ? 'color: var(--accent-green); font-weight: 700;' : (fii.pvp > 1.03 ? 'color: var(--accent-red);' : '');
+      const statusInvestUrl = `https://statusinvest.com.br/fundos-imobiliarios/${fii.ticker.toLowerCase()}`;
+
       return `
         <tr>
           <td style="color: var(--text-dim); font-size: 0.78rem;">#${idx + 1}</td>
@@ -347,9 +385,14 @@ class FiiRadar {
           <td class="mono">R$ ${fii.lastDividend.toFixed(2)}</td>
           <td style="color: var(--text-muted); font-size: 0.8rem;">${fii.liquidity}</td>
           <td>
-            <button class="btn btn-outline btn-sm" onclick="window.app.openTradeModal('${fii.ticker}', 'fii', ${fii.price})">
-              Investir
-            </button>
+            <div style="display: flex; gap: 6px;">
+              <a href="${statusInvestUrl}" target="_blank" rel="noopener" class="btn btn-broker btn-sm" title="Ir para a área de análise e compra">
+                🛒 Negociar
+              </a>
+              <button class="btn btn-outline btn-sm" onclick="window.app.openTradeModal('${fii.ticker}', 'fii', ${fii.price})" title="Simular na carteira virtual">
+                💼 Simular
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -383,9 +426,7 @@ class FiiRadar {
       const monthlyIncome = numShares * fii.lastDividend;
       const annualIncome = monthlyIncome * 12;
 
-      // Efeito Bola de Neve: Quantas cotas são necessárias para comprar 1 cota por mês apenas com os dividendos?
       const sharesForFreeShare = Math.ceil(fii.price / fii.lastDividend);
-      const capitalForSnowball = sharesForFreeShare * fii.price;
       const isSnowballAchieved = numShares >= sharesForFreeShare;
 
       document.getElementById('calc-shares-count').textContent = numShares.toLocaleString('pt-BR') + ' cotas';
@@ -423,8 +464,13 @@ class FiiRadar {
     }
   }
 
-  setFilter(filter) {
+  setSignalFilter(filter) {
     this.currentFilter = filter;
+    this.renderOpportunities();
+  }
+
+  setTableFilter(filter) {
+    this.tableFilter = filter;
     this.renderFiiTable();
   }
 
